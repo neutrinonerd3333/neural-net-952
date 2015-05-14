@@ -1,11 +1,27 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{tony}[2015/02/09 tony package]
+\ProvidesPackage{tony}[2015/05/13 tony package]
 
+% TODO OPTIONS HERE!
+
+\ProcessOptions\relax
+
+% math (shamelessly pillaged from Evan Chen)
+\RequirePackage{amsmath, amssymb, amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+% small fineries
 \RequirePackage[l2tabu, orthodox]{nag}
 \RequirePackage{microtype}
+
+% nice layout preset
 \RequirePackage{geometry}
 \geometry{letterpaper}
 
-\ProcessOptions\relax
+% these must go last, IN THIS ORDER
+\RequirePackage{hyperref}
+\RequirePackage{cleveref}
 
 \endinput
