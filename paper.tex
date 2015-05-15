@@ -8,10 +8,11 @@
 
 \usepackage{tony}
 
+% for drawing figures and stuff
 \usepackage{tikz}
 \usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
 
-
+% new math operator
 \DeclareMathOperator{\softmax}{softmax}
 
 \title{Voice Classification by Neural Networks}
@@ -21,7 +22,9 @@
 \maketitle
 
 \begin{abstract}
-% abstract
+% TODO
+% neural net to classify voice gender (age?)
+% 
 \end{abstract}
 
 \section{Introduction}
@@ -29,12 +32,12 @@
 % introduce things
 % theory background
 
-Though still a relatively new field, machine learning, the study of algorithms that can ``learn" dynamically, holds much potential. 
+Though still a relatively new field, machine learning, the study of algorithms that can ``learn" dynamically, holds much potential. Already, machine learning algorithms are finding great use in everything from identification of Higgs Boson decay events in high-energy particle collisions to recommendation systems on such sites as Facebook, YouTube, and Netflix.
 % blah blah blah
 
-A curious development in the field was the \emph{neural network}, a biologically inspired machine learning model. Indeed, we see how the nodes in \cref{fig:neuralnet} resemble neurons sending information to other neurons. We shall soon make these concepts mathematically rigorous.
+A curious development in macine learning was the \emph{neural network}, a biologically inspired machine learning model. Indeed, we see how the nodes in \cref{fig:neuralnet} resemble neurons sending information to other neurons. We shall soon offer a mathematically rigorous definition of the neural network.
 
-The goal of a neural network is to classify a \emph{feature vector}; that is, given some input data (``features", e.g. the batting average of a particular baseball player, the temperature that particular day), we would like to place this data point into one of a number of \emph{classes} (e.g. whether his/her next swing will/will not be a strike). In particular, the neural network will be a function taking input data and outputting some numbers that can be interpreted as the probability that this data point is in a particular class.\footnote{To be nitpicky, we should only say that these numbers are indices for the model's confidence that the data point is in some class.}
+The goal of a neural network is to classify a \emph{feature vector}; that is, given some input data (``features", e.g. the batting average of a particular baseball player, the temperature that particular day), we would like to place this data point into one of a number of \emph{classes} (e.g. this player's next swing will/will not be a strike). In particular, the neural network will be a function taking input data and outputting some numbers that can be interpreted as the probability that this data point is in a particular class.\footnote{To be nitpicky, we should only say that these numbers are simply indices for the model's confidence that the data point is in some class.}
 
 Let's make that concrete. For our baseball example, suppose we'd like to predict whether Lauren the baseball player (batting average 0.315) will hit the ball on her next swing. The current temperature at the stadium is 21.6 degrees Celsius. So we give the neural net the feature vector $(0.315, 21.6)$. The neural net then outputs us $(0.21, 0.79)$---a strike with ``probability" 0.21 and a non-strike with ``probability" 0.79.
 
@@ -46,6 +49,8 @@ Let's make that concrete. For our baseball example, suppose we'd like to predict
 \label{fig:neuralnet}
 \end{figure}
 
+% describe our project
+
 \subsection{Neural Net Theory}
 
 How does a neural network make these predictions?
@@ -54,31 +59,72 @@ Each neural network takes the input and sends it through a set of \emph{neurons}
 The value of each neuron is either predetermined (as are the ``bias" neurons in \cref{fig:neuralnet}, whose values are fixed at 1, or the input neurons, whose values are just the individual components of the feature vectors---one input neuron could contain a baseball player's batting average, for example) or computed from the values of neurons in the previous layer.
 
 For our purposes, each neuron $z$ (except for the bias neuron) in a \emph{hidden layer} (layer that isn't the first or last) depends on the neurons $x_i$ in the previous layer as follows:
-\[ z = \sigma\left(\sum_i \alpha_i x_i \right) \]
+\beq
+\label{eq:hiddenlayer}
+z = \sigma\left(\sum_i \alpha_i x_i \right)
+\eeq
 where $\sigma(t) = (1 + \exp(-t))^{-1}$ is the logistic function and the $\alpha_i$ are some known constants (imagine these as unique ``weights" attached to each arrow between neurons in \cref{fig:neuralnet}). We shall see later where the values of $\alpha$ come from.
 
 The values of the neurons $y_k$ ($k = 1, \dots, K$) in the output layer, however, are defined as follows:
-\[ y_k = \softmax_k(n_1, n_2, \dots, n_K) = \frac{\exp(n_k)}{\sum_j \exp(n_j)} \]
+\beq
+y_k = \softmax_k(n_1, n_2, \dots, n_K) = \frac{\exp(n_k)}{\sum_j \exp(n_j)}
+\eeq
 where each $n_k$ is a ``proto-value" associated with neuron $y_k$ with value
-\[ n_k = \sum_i \beta_i x_i \]
+\beq
+\label{eq:netvalue}
+n_k = \sum_i \beta_i x_i
+\eeq
 where the $\beta_i$ are known constants (like the $\alpha_i$ from a little before) and the $x_i$ are the neurons in the penultimate layer.
 
-In general, with the exception of the input neurons and the bias neurons, each neuron's value is simply produced by applying some nonlinear function (e.g. $\sigma, \softmax$) to a linear combination of the values of the neurons in the previous layer. The weights on the linear combination are predetermined. Clearly, to teach a neural net, we must figure out the right weights for the situation.
+In general, with the exception of the input neurons and the bias neurons, each neuron's value is simply produced by applying some nonlinear function (e.g. $\sigma, \softmax$) to a linear combination of the values of the neurons in the previous layer. The weights on the linear combination are predetermined. Clearly, ``teaching" a neural net reduces to determining  the correct weights for the situation.
 
-\subsection{Training}
+\subsection{Gradient Descent}
 
+% insert stuff about gradient descent!
+Formally, we can rephrase our problem as follows: Given a set of $K$ data points $(x_k, y_k)$ and a family of functions $f(\vec{w})$ (for some number of parameters $w_i$, which we write as a vector), find the parameters such that we minimize some \emph{objective function} dependent on both data points and the parameters that represents in some way the inaccuracy of the estimates $f(\vec{w})(x_k)$ of $y_k$. For our purposes, we will minimize mean-square error, defined as
+\beq
+\label{eq:meansqerror}
+E(\vec{w}) = \sum_k E_k(\vec{w}) = \sum_k (y_k - f(\vec{w})(x_k))^2
+\eeq
 
+In practice, there will be numerous parameters $w_i$ (each $\alpha$ and $\beta$ in \cref{eq:hiddenlayer,eq:netvalue} is a $w_i$), so finding a global minimum will be challenging: setting the derivatives of $E$ to 0 and solving the resulting nonlinear equations (our $f$ will involve the nonlinear logistic $\sigma$ and softmax functions) is unfeasible. Instead, we will employ a technique known as gradient descent.
 
+The basic idea is simple. Suppose we are looking for low points in some terrain. We pick an arbitrary location to begin. Then, we walk downhill (in the direction with the steepest drop) a certain distance. We stop, then check which way will take us down the steepest path from our new location. We walk downhill a certain distance again, then repeat the process. Clearly, gradient descent will \emph{not} necessarily find the global minimum, but rather a local one.
+
+We formalize this idea as follows. Given an objective function $E$, we start at some arbitrary $\vec{w}_0$. To find a better estimate for $\vec{w}$, we iteratively go ``downhill" from $\vec{w}_{n-1}$ to $\vec{w}_{n}$, computing
+\beq
+\vec{w}_n = \vec{w}_{n-1} - \eta\vec{\nabla} E(\vec{w}_{n-1})
+\eeq
+where $\eta > 0$ is some fixed step size (the ``certain distance" in ou
+r hill analogy). The gradient $\vec{\nabla} E$ represents the direction of steepest ascent of the function $E$. Gradient descent is extremely useful for our purposes because for the $E$ we are using, the resulting derivatives $\frac{\partial E}{\partial w_i}$ are relatively simple to determine.
+
+Still, since our objective function sums over all $K$ our data points $(x_k, y_k)$ (see \cref{eq:meansqerror}), gradient descent quickly becomes computationally expensive for us as we try to compute $O(K)$ partial derivatives. Is there a more efficient alternative?
+
+% TODO stochastic gradient descent
+
+\subsection{Receiver Operating Characteristic}
+
+% TODO
+% ROC curves
+% AUC metric
+
+\subsection{Fourier Analysis}
+
+% TODO
+% discrete fourier analysis
 
 \section{Methodology}
 
-    % number of data points
-% feature vectors (and which ultimately chosen)
-    % structure of neural net
-    % gradient descent
+% TODO
+% number of data points
+% feature vectors (and which ultimately chosen): Tony
+% structure of neural net
+% gradient descent
+
+% We collected XXXXXXXX voice samples, of which YYYYY were male and ZZZZZ were female.
 
 \section{Results}
 
-    % ROC AUC scores and such
+% ROC AUC scores and such
 
 \end{document}
