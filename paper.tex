@@ -40,8 +40,8 @@ A curious development in macine learning was the \emph{neural network} (or infor
 Indeed, we see how the nodes in \cref{fig:neuralnet} resemble neurons sending information to other neurons.
 We shall soon offer a mathematically rigorous definition of the neural network.
 
-The goal of a neural network is to classify a \emph{feature vector}; that is, given some input data (``features", e.g. the batting average of a particular baseball player, the temperature that particular day), we would like to place this data point into one of a number of \emph{classes} (e.g. this player's next swing will/will not be a strike).
-In particular, the neural network will be a function taking input data and outputting some numbers that can be interpreted as the probability that this data point is in a particular class.\footnote{To be nitpicky, we should only say that these numbers are simply indices for the model's confidence that the data point is in some class.}
+The goal of a neural network is to classify \emph{instances} described by \emph{feature vectors}; that is, given some data about an instance (``features", e.g. the batting average of a particular baseball player, the temperature that particular day), we would like to place the instance into one of a number of \emph{classes} (e.g. this player's next swing will/will not be a strike).
+In particular, the neural network will be a function taking input data and outputting some numbers that can be interpreted as the probability that this instance is in a particular class.\footnote{To be nitpicky, we should only say that these numbers are simply indices for the model's confidence that the instance is in some class.}
 
 Let's make that concrete.
 For our baseball example, suppose we'd like to predict whether Lauren the baseball player (batting average 0.315) will hit the ball on her next swing.
@@ -61,10 +61,11 @@ The neural net then outputs us $(0.21, 0.79)$---a strike with ``probability" 0.2
 
 \subsection{Neural Net Theory}
 
-How does a neural network make these predictions?
-Each neural network takes the input and sends it through a set of \emph{neurons} (each carrying a value) organized into \emph{layers}.
+What exactly is a neural net, and how does it make these predictions?
+Each neural net takes some input and sends it through a set of \emph{neurons}, each carrying a value, organized into \emph{layers}.
 (\cref{fig:neuralnet} displays 3 layers, but a neural net can have arbitrarily many layers, with arbitrarily many neurons in each.)
 The value of each neuron is either predetermined (as are the ``bias" neurons in \cref{fig:neuralnet}, whose values are fixed at 1, or the input neurons, whose values are just the individual components of the feature vectors---one input neuron could contain a baseball player's batting average, for example) or computed from the values of neurons in the previous layer.
+We read off the output of the neural net in the final layer, each of whose neurons will give us values in $(0, 1)$. There is one neuron per class, each representing the level of certainty the model has that our instance belongs to the respective class of the neuron.
 
 For our purposes, each neuron $z$ (except for the bias neuron) in a \emph{hidden layer} (layer that isn't the first or last) depends on the neurons $x_i$ in the previous layer as follows:
 \beq
@@ -87,12 +88,12 @@ where the $\beta_i$ are known constants (like the $\alpha_i$ from a little befor
 
 In general, with the exception of the input neurons and the bias neurons, each neuron's value is simply produced by applying some nonlinear function (e.g. $\sigma, \softmax$) to a linear combination of the values of the neurons in the previous layer.
 The weights on the linear combination are predetermined.
-Clearly, ``teaching" a neural net reduces to determining  the correct weights for the situation.
+Clearly, ``training" a neural net reduces to determining the correct weights for the situation.
 
 \subsection{Gradient Descent}
 
 % insert stuff about gradient descent!
-Formally, we can rephrase our problem as follows: Given a set of $K$ data points $(x_k, y_k)$ and a family of functions $f(\vec{w})$ (where we write the parameters as components of vector $\vec{w}$), find the parameters that minimize some \emph{objective function} dependent on both the data points and the parameters that represents in some way the inaccuracy of the estimates $f(\vec{w})(x_k)$ of $y_k$.
+Formally, we can rephrase our problem as follows: Given a set of $K$ instances $(x_k, y_k)$ and a family of functions $f(\vec{w})$ (where we write the parameters as components of vector $\vec{w}$), find the parameters that minimize some \emph{objective function} dependent on both the instances and the parameters that represents in some way the inaccuracy of the estimates $f(\vec{w})(x_k)$ of $y_k$.
 For our purposes, we will minimize mean-square error, defined as
 \beq
 \label{eq:meansqerror}
@@ -121,25 +122,48 @@ where $\eta > 0$ is some fixed step size (the ``certain distance" in our hill an
 The gradient $\vec{\nabla} E$ represents the direction of steepest ascent of the function $E$.
 Gradient descent is extremely useful for our purposes because for the $E$ we are using, as the resulting derivatives $\frac{\partial E}{\partial w}$ are relatively simple to determine.
 
-Still, since our objective function sums over all $K$ our data points $(x_k, y_k)$ (see \cref{eq:meansqerror}), gradient descent quickly becomes computationally expensive for us as we try to compute $O(K)$ partial derivatives.
+Still, since our objective function sums over all $K$ our instances $(x_k, y_k)$ (see \cref{eq:meansqerror}), gradient descent quickly becomes computationally expensive for us as we try to compute $O(K)$ partial derivatives.
 Is there a more efficient alternative?
 
 \subsubsection{Stochastic Gradient Descent}
 
-Returning to \cref{eq:meansqerror}, we find that our error can be expressed as the sum of the errors on each individual data point.
+Returning to \cref{eq:meansqerror}, we find that our error can be expressed as the sum of the errors on each individual instance.
 Instead of minimizing $E = \sum_k E_k$, we can try to minimize an \emph{individual} $E_k$ (imagine replacing $E$ with $E_k$ in \cref{eq:graddescent}).
 In the long run, we have reason to expect this procedure also minimizes $E$.
 
 % TODO continue
 
-\subsection{Receiver Operating Characteristic}
+\subsection{Receiver Operating Characteristic (ROC)}
 
 Though our goal will ultimately be to find the feature vectors and training procedure that will result in the \emph{best} model, we have not yet introduced any metric for evaluating our models.
 We shall now do just that.
 
+For a binary classification model, where each instance is classified as in or not in some particular group (e.g. the next swing will/won't be a strike), we define the \emph{true positive rate} as the fraction of the instances in the group that are classified as such by the model.
+Similarly, the \emph{false positive rate} is the fraction of the instances \emph{not} in the group that are still classified as in the group by the model.
+A disease test with true and false positive rates 99\% and 5\% will successfully detect disease 99\% of the time.
+On the other hand, it will detect disease in 5\% of all uninfected individuals.
+Let us say that this disease test falls at $(0.05, 0.99)$ in \emph{receiver operating characteristic (ROC) space}, a coordinate plane where false and true positive rates are plotted on the $x$ and $y$ axes, respectively.
+
+Recall that our neural net has \emph{continuous output}---rather than tell us whether some instance is in a class or not, it gives us a number in $(0, 1)$ that serves as an index of its confidence that the instance is in the class.
+To convert this continuous output into a binary prediction (in/not in the class), we can set a threshold for this index.
+Those instances for which the neural net gives us a result above the threshold are considered predicted to be in the class, and \emph{vice versa}.
+
+As we vary the threshold, the neural net's position in ROC space will vary.
+As the threshold moves from 0 to 1, the neural net will trace out a curve in ROC space (see \cref{fig:rocexample}, which we will call the model's \emph{ROC curve}.
+% ROC curve intuition
+
+\begin{figure}
+\centering
+% \includegraphics{aux/rocexample.pdf}
+\caption{An example ROC curve.}
+\label{fig:rocexample}
+\end{figure}
+% TODO include 
+
 % ROC space (false pos, true pos)
 % ROC curve
 % AUC
+% insert figure
 
 \subsection{Fourier Analysis}
 
@@ -149,7 +173,7 @@ We shall now do just that.
 \section{Methodology}
 
 % TODO
-% number of data points
+% number of instances
 % feature vectors (and which ultimately chosen): Tony
 % structure of neural net
 % gradient descent
