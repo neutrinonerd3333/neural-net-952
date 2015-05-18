@@ -149,21 +149,22 @@ To convert this continuous output into a binary prediction (in/not in the class)
 Those instances for which the neural net gives us a result above the threshold are considered predicted to be in the class, and \emph{vice versa}.
 
 As we vary the threshold, the neural net's position in ROC space will vary.
-As the threshold moves from 0 to 1, the neural net will trace out a curve in ROC space (see \cref{fig:rocexample}, which we will call the model's \emph{ROC curve}.
-% ROC curve intuition
+In particular, as we vary threshold from 0 to 1, the neural net will trace out a curve in ROC space (see \cref{fig:rocexample}), which we will call the model's \emph{ROC curve}.
+Note that a random classifier, with no distinguishing power between positive and negative instances, would have an ROC curve coinciding with the line $y = x$, as we expect equal true and false positive rates from this classifier.
+On the other hand, a model whose ROC curve lies above this line would tend to give higher ``scores" (the continuous output) to positive instances than to negative ones.
+Thus, we would like our model's ROC curve to lie as far above the line $y = x$ as possible.
+
+This intuition suggests that a good metric for evaluating our models could be the area under the ROC curve.
+Indeed, \emph{Area Under Curve} (AUC) is a common metric for binary classification.
+Its value can range from 0 to 1, though in practice, our values will lie in $(0.5, 1)$.
+A value of 0.5 corresponds to a model no better than a random classifier, while a value of 1 corresponds to a model that perfectly distinguishes between positive and negative instances.
 
 \begin{figure}
 \centering
-% \includegraphics{aux/rocexample.pdf}
-\caption{An example ROC curve.}
+\includegraphics[width=\textwidth]{aux/rocexample.pdf}
+\caption{An example ROC curve, with AUC $\approx 0.7804$. The dashed line shows $y = x$.}
 \label{fig:rocexample}
 \end{figure}
-% TODO include 
-
-% ROC space (false pos, true pos)
-% ROC curve
-% AUC
-% insert figure
 
 \subsection{Fourier Analysis}
 
