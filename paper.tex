@@ -139,8 +139,7 @@ Is there a more efficient alternative?
 Returning to \cref{eq:meansqerror}, we find that our error can be expressed as the sum of the errors on each individual instance.
 Instead of minimizing $E = \sum_k E_k$, we can try to minimize an \emph{individual} $E_k$ (imagine replacing $E$ with $E_k$ in \cref{eq:graddescent}).
 In the long run, we have reason to expect this procedure also minimizes $E$.
-
-% TODO continue
+Indeed, stochastic gradient descent is the industry standard for training artificial neural nets.
 
 \subsection{Receiver Operating Characteristic (ROC)}
 
@@ -181,21 +180,17 @@ A value of 0.5 corresponds to a model no better than a random classifier, while 
 % training/test data
 
 
-\subsection{Fourier Analysis}
-
-% TODO
-% discrete fourier analysis
+%\subsection{Fourier Analysis}
+%
+%% TODO
+%% discrete fourier analysis
 
 
 \section{Methodology}
 
 % TODO
-% number of instances
-% feature vectors (and which ultimately chosen): Tony
 % structure of neural net
 % gradient descent
-
-% We collected XXXXXXXX voice samples, of which YYYYY were male and ZZZZZ were female.
 
 Subjects were selected based on availability, with a majority of participants being students of the Hotchkiss School.
 Voice recordings were collected from a total of $n = 63$ subjects (27 male and 36 female). Subject voice data was obtained in the form of 22050 Hz \texttt{.aiff} files, recorded using the microphone of an iPhone.
@@ -204,12 +199,23 @@ The sex and age of the subjects were recorded.
 Although recorded, subject’s age is likely to be insignificant due to the stabilization of most voices post-puberty. Some subjects were given novels and other reading material to read from, as they were uncomfortable with speaking without directives.
 This data was collected in relatively silent locations, thus minimizing background or stray noises. All data processing and analysis was completed in Wolfram Mathematica.
 The voice samples were imported and processed using Fourier analysis.
-We experimented with multiple schemata for feature extraction, before ultimately settling on the best for our purposes.
+We experimented with multiple schemata for feature extraction, before ultimately settling on the best for our purposes (as evaluated by the AUC metric), which we outline here.
 Each voice sample was broken into 0.5 second fragments (any trailing data at the end of the sound sample was discarded).
-We took the norms of the discrete Fourier transform (DFT) of each fragment and added them together (i.e. if fragments $1, 2, \dots, n$ have DFTs $\hat{f_1},\hat{f_2}, \dots, \hat{f_n}$, we find $g = \sum_k |\hat{f_k}|$). The resulting function $g$ was normalized as in \[\bar{g} = \frac{g}{\sum\limits_m g(m)}\] where we sum over all $m$ in the (finite) domain of $g$.\footnote{As we are working with half-second fragments of 22050 Hz sound files, this domain is actually $\frac{\ZZ}{11025\ZZ}$.} Each voice file was analyzed thus, and a series of features were generated for each; these features constituted a profile of each subject's voice.
+We took the norms of the discrete Fourier transform (DFT) of each fragment and added them together (i.e. if fragments $1, 2, \dots, n$ have DFTs $\hat{f_1},\hat{f_2}, \dots, \hat{f_n}$, we find $g = \sum_k |\hat{f_k}|$). The resulting function $g$ was normalized as in \[\bar{g} = \frac{g}{\sum\limits_m g(m)}\] where we sum over all $m$ in the (finite) domain of $g$.
+(As we are working with half-second fragments of 22050 Hz sound files, this domain is actually $D = \frac{\ZZ}{11025\ZZ}$.)
+We then generated a series of features $x_k$ for each voice by finding the total value of $g$ within some predefined bins $B_i\subset D$. In our case, our bins were contiguous sequences of consecutive integers.\footnote{The smallest elements in each bin were: $\{25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 600, 800, 1600\}$. Thus, our bins were 25 to 49, 50 to 74, etc. The final bin was 1600 to 3199. As we are working with 0.5 second fragments, these bins correspond to frequencies 50 to 98 Hz, 100 to 149 Hz, etc.}
+
+Each voice file was analyzed thus, and a series of features were generated for each; these features constituted a profile of each subject's voice.These features were then standardized so as to have mean 0 and standard deviation 1 (in effect, we replace them with $z$-scores).
+That is, if $\mu$ is the mean of feature $j$ across all voice samples and $\sigma$ is its standard deviation, the original value $x$ of the feature will be standardized to $z = \frac{x - \mu}{\sigma}$.
+
+These standardized feature vectors were used to train our neural net, to which we gave a single hidden layer with 8 nodes.
+To train our model, we turned to stochastic gradient descent, the standard for artificial neural networks.
+We experimented with the parameters involved in training our model (number of gradient descent iterations and step size $\eta$---see \cref{eq:graddescent}), finally settling on 1000 iterations and $\eta = 0.1$, which seemed to produce optimal results (see \cref{sec:results} for our evaluation scheme).
+
 
 
 \section{Results}
+\label{sec:results}
 
 % ROC AUC scores and such
 
