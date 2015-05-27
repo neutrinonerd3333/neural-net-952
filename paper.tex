@@ -25,14 +25,11 @@
 \maketitle
 
 \begin{abstract}
-% TODO
-% neural net to classify voice gender (age?)
-% 
+% TODO% 
 
-In this paper, we describe a machine learning schema for voice classification by sex. We collected %XXXXX
-voice samples that we used to train an artificial neural net with a single hidden layer using stochastic gradient descent. After experimenting to determine the optimal training parameters (number of iterations, etc.), using %%10-fold cross-validation with ROC AUC as our metric to evaluate our model.
-With % certain settings
-we were able to produce a model that performs %stats
+In this paper, we describe a machine learning schema for voice classification by sex.
+We collected 63 voice samples (27 male, 36 female) that we used to train an artificial neural net with a single hidden layer using stochastic gradient descent.
+After experimenting to determine the optimal training parameters, evaluating each ensemble of parameters with repeated random sub-sampling validation with ROC AUC as our evaluation metric, we arrived at a set of parameters that yielded a score of $0.929 \pm 0.010$ (error given as std. err. of mean).
 \end{abstract}
 
 \section{Introduction}
@@ -142,6 +139,7 @@ In the long run, we have reason to expect this procedure also minimizes $E$.
 Indeed, stochastic gradient descent is the industry standard for training artificial neural nets.
 
 \subsection{Receiver Operating Characteristic (ROC)}
+\label{subsec:roc}
 
 Though our goal will ultimately be to find the feature vectors and training procedure that will result in the \emph{best} model, we have not yet introduced any metric for evaluating our models.
 We shall now do just that.
@@ -165,7 +163,7 @@ Thus, we would like our model's ROC curve to lie as far above the line $y = x$ a
 This intuition suggests that a good metric for evaluating our models could be the area under the ROC curve.
 Indeed, \emph{Area Under Curve} (AUC) is a common metric for binary classification.
 Its value can range from 0 to 1, though in practice, our values will lie in $(0.5, 1)$.
-A value of 0.5 corresponds to a model no better than a random classifier, while a value of 1 corresponds to a model that perfectly distinguishes between positive and negative instances.
+A value of 0.5 corresponds to a model no better than a random classifier (which has ROC curve $y = x$, and therefore an AUC of 0.5), while a value of 1 corresponds to a model that perfectly distinguishes between positive and negative instances.
 
 \begin{figure}
 \centering
@@ -211,12 +209,11 @@ That is, if $\mu$ is the mean of feature $j$ across all voice samples and $\sigm
 These standardized feature vectors were used to train our neural net, to which we gave a single hidden layer with 8 nodes.
 To train our model, we turned to stochastic gradient descent, the standard for artificial neural networks.
 We experimented with the parameters involved in training our model (number of gradient descent iterations and step size $\eta$---see \cref{eq:graddescent}), finally settling on 1000 iterations and $\eta = 0.1$, which seemed to produce optimal results (see \cref{sec:results} for our evaluation scheme).
-
-
 
 \section{Results}
 \label{sec:results}
 
-% ROC AUC scores and such
+To evaluate our model and to optimize our parameters, we used repeated random sub-sampling validation for each ensemble of parameters we tested. For each of the 30 evaluation rounds, we set aside roughly 30\% of the data for testing. Each round produced an AUC score (see \cref{subsec:roc}); the average AUC score over all 30 rounds was used as the final score for the ensemble of parameters. Our final parameters (8 hidden nodes, 1000 stochastic gradient descent iterations, $\eta = 0.1$) yielded an average AUC score of $0.929 \pm 0.010$. \footnote{Error is given as standard error of the mean of all $N = 30$ AUC scores from the evaluation rounds, computed as $\f{\sigma}{\sqrt{N}}$, where $\sigma$ is the standard deviation of the AUC scores.}
+
 
 \end{document}
