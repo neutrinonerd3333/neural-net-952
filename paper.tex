@@ -16,9 +16,9 @@
 
 \title{Voice Classification by Neural Networks}
 \author{
-	\href{mailto:txz@mit.edu}{Tony Zhang},
-	\href{mailto:jtsui@hotchkiss.org}{James Tsui},
-	\href{mailto:mbahrani@hotchkiss.org}{Maryam Bahrani}
+	{Tony Zhang},
+	{James Tsui},
+	{Maryam Bahrani}
 }
 
 \begin{document}
@@ -38,18 +38,17 @@ After experimenting to determine the optimal training parameters, evaluating eac
 % theory background
 
 Though still a relatively new field, machine learning, the study of algorithms that can ``learn" dynamically, holds much potential.
-Already, machine learning algorithms are finding great use in everything from identification of Higgs Boson decay events in high-energy particle collisions to recommendation systems on such sites as Facebook, YouTube, and Netflix.
-% blah blah blah
+Already, machine learning algorithms are finding great use in everything from identification of Higgs Boson decay events in high-energy particle collisions to recommender systems on such sites as Facebook, YouTube, and Netflix.
 
-A curious development in macine learning was the \emph{neural network} (or informally, a neural net), a biologically inspired machine learning model.
+A curious development in machine learning was the \emph{neural network} (or informally, a neural net), a biologically inspired machine learning model.
 Indeed, we see how the nodes in \cref{fig:neuralnet} resemble neurons sending information to other neurons.
 We shall soon offer a mathematically rigorous definition of the neural network.
 
-The goal of a neural network is to classify \emph{instances} described by \emph{feature vectors}; that is, given some data about an instance (``features", e.g. the batting average of a particular baseball player, the temperature that particular day), we would like to place the instance into one of a number of \emph{classes} (e.g. this player's next swing will/will not be a strike).
+The goal of a neural network is to detect patterns in datasets. In this project, we hoped to use these patterns to classify \emph{instances} described by \emph{feature vectors}; that is, given some data about an instance (``features", e.g. the batting average of a particular baseball player, the temperature that particular day), we would like to place the instance into one of a number of \emph{classes} (e.g. this player's next swing will/will not be a strike).
 In particular, the neural network will be a function taking input data and outputting some numbers that can be interpreted as the probability that this instance is in a particular class.\footnote{To be nitpicky, we should only say that these numbers are simply indices for the model's confidence that the instance is in some class.}
 
 Let's make that concrete.
-For our baseball example, suppose we'd like to predict whether Lauren the baseball player (batting average 0.315) will hit the ball on her next swing.
+For our baseball example, suppose we would like to predict whether Lauren the baseball player (batting average 0.315) will hit the ball on her next swing.
 The current temperature at the stadium is 21.6 degrees Celsius.
 So we give the neural net the feature vector $(0.315, 21.6)$.
 The neural net then outputs us $(0.21, 0.79)$---a strike with ``probability" 0.21 and a non-strike with ``probability" 0.79.
@@ -90,6 +89,7 @@ where each $n_k$ is a ``proto-value" associated with neuron $y_k$ with value
 n_k = \sum_i \beta_i x_i
 \eeq
 where the $\beta_i$ are known constants (like the $\alpha_i$ from a little before) and the $x_i$ are the neurons in the penultimate layer.
+Note that by definition of the softmax function, $\sum_k y_k = 1$.
 
 In general, with the exception of the input neurons and the bias neurons, each neuron's value is simply produced by applying some nonlinear function (e.g. $\sigma, \softmax$) to a linear combination of the values of the neurons in the previous layer.
 The weights on the linear combination are predetermined.
@@ -98,7 +98,7 @@ Clearly, ``training" a neural net reduces to determining the correct weights for
 \subsection{Gradient Descent}
 
 % insert stuff about gradient descent!
-Formally, we can rephrase our problem as follows: Given a set of $K$ instances $(x_k, y_k)$ and a family of functions $f(\vec{w})$,\footnote{Note that $f$ itself is a function $f:W\to X$, where $W$ is the space of all possible combinations of weights and $X$ is the space of functions from inputs---our features---to outputs---our predictions. Thus, $\vec{w}$ is a vector whose components are the parameters that determine our model.} find the parameters that minimize the inaccuracy of the estimates $f(\vec{w})(x_k)$ of $y_k$.
+Formally, we can rephrase our problem as follows: Given a set of $K$ instances $(x_k, y_k)$ and a family of functions $f(\vec{w})$,\footnote{Note that $f$ itself is a function $f:W\to X$, where $W$ is the space of all possible combinations of weights and $X$ is the space of functions from inputs (our features) to outputs (our predictions). Thus, $\vec{w}$ is a vector whose components are the parameters that determine our model.} find the parameters (components of $\vec{w}$) that minimize the inaccuracy of the estimates $f(\vec{w})(x_k)$ of $y_k$.
 In particular, we are minimizing some \emph{objective function} dependent on both the instances and the parameters that quantifies that inaccuracy.
 For our purposes, we will minimize mean-square error, defined as
 \beq
@@ -119,6 +119,7 @@ Clearly, gradient descent will \emph{not} necessarily find the global minimum, b
 
 We formalize this idea as follows.
 Given an objective function $E$, we start with some arbitrary set of weights $\vec{w}_0$.
+In practice, we start with randomly generated weights close to 0.
 To find a better estimate for $\vec{w}$, we iteratively go ``downhill" from $\vec{w}_{n-1}$ to $\vec{w}_{n}$, computing
 \beq
 \label{eq:graddescent}
@@ -126,9 +127,9 @@ To find a better estimate for $\vec{w}$, we iteratively go ``downhill" from $\ve
 \eeq
 where $\eta > 0$ is some fixed step size (the ``certain distance" in our hill analogy).
 The gradient $\vec{\nabla} E$ represents the direction of steepest ascent of the function $E$.
-Gradient descent is extremely useful for our purposes because for the $E$ we are using, as the resulting derivatives $\frac{\partial E}{\partial w}$ are relatively simple to determine.
+Gradient descent is extremely useful for the $E$ we are using, as the resulting derivatives $\frac{\partial E}{\partial w}$ are relatively simple to determine.
 
-Still, since our objective function sums over all $K$ our instances $(x_k, y_k)$ (see \cref{eq:meansqerror}), gradient descent quickly becomes computationally expensive for us as we try to compute $O(K)$ partial derivatives.
+Still, since our objective function sums over all $K$ of our instances $(x_k, y_k)$ (see \cref{eq:meansqerror}), gradient descent quickly becomes computationally expensive for us as we try to compute $O(K)$ partial derivatives.
 Is there a more efficient alternative?
 
 \subsubsection{Stochastic Gradient Descent}
@@ -144,20 +145,20 @@ Indeed, stochastic gradient descent is the industry standard for training artifi
 Though our goal will ultimately be to find the feature vectors and training procedure that will result in the \emph{best} model, we have not yet introduced any metric for evaluating our models.
 We shall now do just that.
 
-For a binary classification model, where each instance is classified as in or not in some particular group (e.g. the next swing will/won't be a strike), we define the \emph{true positive rate} as the fraction of the instances in the group that are classified as such by the model.
+For a binary classification model, where each instance is classified as in or not in some particular group (e.g. the next swing will/will not be a strike), we define the \emph{true positive rate} as the fraction of the instances \emph{in} the group that are classified as such by the model.
 Similarly, the \emph{false positive rate} is the fraction of the instances \emph{not} in the group that are still classified as in the group by the model.
-A disease test with true and false positive rates 99\% and 5\% will successfully detect disease 99\% of the time.
+For example, a disease test with true and false positive rates 99\% and 5\% will successfully detect disease 99\% of the time.
 On the other hand, it will detect disease in 5\% of all uninfected individuals.
 Let us say that this disease test falls at $(0.05, 0.99)$ in \emph{receiver operating characteristic (ROC) space}, a coordinate plane where false and true positive rates are plotted on the $x$ and $y$ axes, respectively.
 
-Recall that our neural net has \emph{continuous output}---rather than tell us whether some instance is in a class or not, it gives us a number in $(0, 1)$ that serves as an index of its confidence that the instance is in the class.
+Recall that our neural net has \emph{continuous output}---instead of telling us whether some instance is in a class or not, it gives us a number in $(0, 1)$ that serves as an index of its confidence that the instance is in the class.
 To convert this continuous output into a binary prediction (in/not in the class), we can set a threshold for this index.
 Those instances for which the neural net gives us a result above the threshold are considered predicted to be in the class, and \emph{vice versa}.
 
 As we vary the threshold, the neural net's position in ROC space will vary.
 In particular, as we vary threshold from 0 to 1, the neural net will trace out a curve in ROC space (see \cref{fig:rocexample}), which we will call the model's \emph{ROC curve}.
 Note that a random classifier, with no distinguishing power between positive and negative instances, would have an ROC curve coinciding with the line $y = x$, as we expect equal true and false positive rates from this classifier.
-On the other hand, a model whose ROC curve lies above this line would tend to give higher ``scores" (the continuous output) to positive instances than to negative ones.
+On the other hand, a model whose ROC curve lies above this line would tend to give higher ``scores" (the output of our neural net prior to thresholding) to positive instances than to negative ones.
 Thus, we would like our model's ROC curve to lie as far above the line $y = x$ as possible.
 
 This intuition suggests that a good metric for evaluating our models could be the area under the ROC curve.
@@ -174,8 +175,20 @@ A value of 0.5 corresponds to a model no better than a random classifier (which 
 
 \subsection{Cross Validation}
 
-% why do we want it? +overfitting
-% training/test data
+We want the neural net we generate to be robust and generalizable.
+A good model should sufficiently capture any signal in the training set.
+If the model, on the other hand, fails to detect some significant signal, we call our model \emph{underfitted}.
+Additionally, we do not want the model to track the training set too closely, treating its random noise as meaningful correlations, thus \emph{overfitting} the data by failing to generalize to unseen data.
+How do we evaluate a model in a manner that discourages underfitting and overfitting?
+
+
+Cross-validation is a statistical technique used to aid in model selection that addresses these issues.
+While there is great variation in the methods of cross-validation, the procedure generally consists of separating the data into a training set and testing set.
+The training data is used to train the model, and the testing data (and only the testing data) is used for the evaluation of the model, thus discouraging overfitting to the training data.
+For our purposes, we decided to cross-validate using the repeated random sub-sampling method.
+This method randomly allocates a certain percentage of the data for training (we use 70\%, a standard amount), and the rest for testing.
+Repeated random subsampling reruns this process for a fixed nubmer of iterations, keeping track of some performance metric each round.
+These performance measurements are then aggregated to give an estimate of how the model performs on new data.
 
 
 %\subsection{Fourier Analysis}
@@ -194,7 +207,7 @@ Subjects were selected based on availability, with a majority of participants be
 Voice recordings were collected from a total of $n = 63$ subjects (27 male and 36 female). Subject voice data was obtained in the form of 22050 Hz \texttt{.aiff} files, recorded using the microphone of an iPhone.
 Subjects were instructed to speak until they were told to stop, and an approximately 10 second recording of their speech was made.
 The sex and age of the subjects were recorded.
-Although recorded, subject’s age is likely to be insignificant due to the stabilization of most voices post-puberty. Some subjects were given novels and other reading material to read from, as they were uncomfortable with speaking without directives.
+Although recorded, subjects' age is likely to be insignificant due to the stabilization of most voices post-puberty. Some subjects were given novels and other reading material to read from, as they were uncomfortable with speaking without directives.
 This data was collected in relatively silent locations, thus minimizing background or stray noises. All data processing and analysis was completed in Wolfram Mathematica.
 The voice samples were imported and processed using Fourier analysis.
 We experimented with multiple schemata for feature extraction, before ultimately settling on the best for our purposes (as evaluated by the AUC metric), which we outline here.
