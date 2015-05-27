@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{tony}[2015/05/13 tony package]
+\ProvidesPackage{tony}[2015/05/27 tony package]
 
 % TODO OPTIONS HERE!
 
@@ -28,5 +28,13 @@
 \RequirePackage{hyperref}
 \hypersetup{colorlinks}
 \RequirePackage[capitalize, nameinlink, noabbrev]{cleveref}
+
+% Blackboard letters for sets
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+\newcommand{\f}[2]{\frac{#1}{#2}}
 
 \endinput
