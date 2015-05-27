@@ -15,7 +15,11 @@
 \DeclareMathOperator{\softmax}{softmax}
 
 \title{Voice Classification by Neural Networks}
-\author{Tony Zhang, James Tsui, Maryam Bahrani}
+\author{
+	\href{mailto:txz@mit.edu}{Tony Zhang},
+	\href{mailto:jtsui@hotchkiss.org}{James Tsui},
+	\href{mailto:mbahrani@hotchkiss.org}{Maryam Bahrani}
+}
 
 \begin{document}
 \maketitle
@@ -175,7 +179,7 @@ A value of 0.5 corresponds to a model no better than a random classifier, while 
 
 % why do we want it? +overfitting
 % training/test data
-% 
+
 
 \subsection{Fourier Analysis}
 
@@ -192,6 +196,18 @@ A value of 0.5 corresponds to a model no better than a random classifier, while 
 % gradient descent
 
 % We collected XXXXXXXX voice samples, of which YYYYY were male and ZZZZZ were female.
+
+Subjects were selected based on availability, with a majority of participants being students of the Hotchkiss School.
+Voice recordings were collected from a total of $n = 63$ subjects (27 male and 36 female). Subject voice data was obtained in the form of 22050 Hz \texttt{.aiff} files, recorded using the microphone of an iPhone.
+Subjects were instructed to speak until they were told to stop, and an approximately 10 second recording of their speech was made.
+The sex and age of the subjects were recorded.
+Although recorded, subject’s age is likely to be insignificant due to the stabilization of most voices post-puberty. Some subjects were given novels and other reading material to read from, as they were uncomfortable with speaking without directives.
+This data was collected in relatively silent locations, thus minimizing background or stray noises. All data processing and analysis was completed in Wolfram Mathematica.
+The voice samples were imported and processed using Fourier analysis.
+We experimented with multiple schemata for feature extraction, before ultimately settling on the best for our purposes.
+Each voice sample was broken into 0.5 second fragments (any trailing data at the end of the sound sample was discarded).
+We took the norms of the discrete Fourier transform (DFT) of each fragment and added them together (i.e. if fragments $1, 2, \dots, n$ have DFTs $\hat{f_1},\hat{f_2}, \dots, \hat{f_n}$, we find $g = \sum_k |\hat{f_k}|$). The resulting function $g$ was normalized as in \[\bar{g} = \frac{g}{\sum\limits_m g(m)}\] where we sum over all $m$ in the (finite) domain of $g$.\footnote{As we are working with half-second fragments of 22050 Hz sound files, this domain is actually $\frac{\ZZ}{11025\ZZ}$.} Each voice file was analyzed thus, and a series of features were generated for each; these features constituted a profile of each subject's voice.
+
 
 \section{Results}
 
